@@ -3,11 +3,19 @@
 class DefaultController extends Controller
 {
     public $defaultAction = "admin";
+    
     const path = 'application.migrations';
+    
+    public function filters()
+    {
+        return array('accessControl');
+    }
     
     public function actionIndex()
     {
-        $this->render(Yii::app()->getModule('migration')->viewIndex, array( ));
+        $this->render(Yii::app()->getModule('migration')->viewIndex, array(
+            
+        ));
     }
     
     public function actionCreate()
@@ -17,12 +25,12 @@ class DefaultController extends Controller
         if(isset($_POST['Migrate']))
         {
             if(empty($_POST['Migrate']['name']))
-                Yii::app()->user->setFlash('error', Yii::t('app', 'Please enter a name in migration'));
+                Yii::app()->user->setFlash('alert-error', Yii::t('app', 'Please enter a name in migration'));
             else
             {
                 $nome = $_POST['Migrate']['name'];
-                $result = $this->executeCommand("php $application/yiic.php migrate create $nome --interactive=0");
-                Yii::app()->user->setFlash('success', Yii::t('app', $result));
+                $result = exec("php $application/yiic.php migrate create $nome --interactive=0");
+                Yii::app()->user->setFlash('alert-success', $result);
             }
         }
         
@@ -60,7 +68,7 @@ class DefaultController extends Controller
         }
         
         if(empty($avaiable))
-            Yii::app()->user->setFlash('warning', Yii::t('app', 'There is no migration to be performed.'));
+            Yii::app()->user->setFlash('alert-warning', Yii::t('app', 'There is no migration to be performed.'));
         
         $this->render(Yii::app()->getModule('migration')->viewAdmin, array(
             'provider'=>new CArrayDataProvider($updated),
@@ -74,12 +82,13 @@ class DefaultController extends Controller
         {
             $especific = $_POST['Up'][0]; 
             $application = Yii::getPathOfAlias('application');
-            $result = $this->executeCommand("php $application/yiic.php migrate to $especific --interactive=0");
-            Yii::app()->user->setFlash('warning', Yii::t('app', $result));
+            $result = exec("php $application/yiic.php migrate to $especific --interactive=0");
+            
+            Yii::app()->user->setFlash('alert-warning', Yii::t('app', $result));
         }
         else
         {
-            Yii::app()->user->setFlash('error', Yii::t('app', 'Nothing found'));
+            Yii::app()->user->setFlash('alert-error', Yii::t('app', 'Nothing found'));
         }
         
         $this->redirect(array('admin'));
@@ -91,31 +100,14 @@ class DefaultController extends Controller
         {
             $application = Yii::getPathOfAlias('application');
             $name = $_POST['Down'][0];
-            $result = $this->executeCommand("php $application/yiic.php migrate down $name --interactive=0");
-            Yii::app()->user->setFlash('warning', Yii::t('app', $result));
+            $result = exec("php $application/yiic.php migrate down $name --interactive=0");
+            Yii::app()->user->setFlash('alert-warning', Yii::t('app', $result));
         }
         else
         {
-            Yii::app()->user->setFlash('error', Yii::t('app', 'Nothing Found'));   
+            Yii::app()->user->setFlash('alert-error', Yii::t('app', 'Nothing Found'));   
         }
         
         $this->redirect(array('admin'));
-    }
-    
-    private function executeCommand($command)
-    {
-        if(function_exists('exec'))
-        {
-           $result =  exec($command);
-           return $result;
-        }
-        
-//        if(function_exists('shell_exec'))
-//        {
-//           $result = shell_exec($command);
-//           return $result;
-//        }
-        
-        throw new Exception(Yii::t('app', 'Function exec and shell_exec is not avaiable in your Host.'));
     }
 }

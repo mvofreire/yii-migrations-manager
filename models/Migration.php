@@ -12,26 +12,23 @@
  * @property string $version
  * @property integer $apply_time
  */
-class Migration extends CActiveRecord {
-
+class Migration extends CActiveRecord
+{
     const UPDATED = 0;
     const AVAILABLE = 1;
-
+    
     public $status;
-
+    
     /**
      * Returns the static model of the specified AR class.
      * @param string $className active record class name.
      * @return Migration the static model class
      */
-    public static function model($className = __CLASS__) {
-        
-        try 
-        {
+    public static function model($className=__CLASS__)
+    {
+        if(Yii::app()->db->schema->getTable('{{migration}}'))
             $model = parent::model($className);
-            $model->getTableSchema();
-        }
-        catch (CDbException $e) 
+        else
         {
             self::createDbTable();
             $model = parent::model($className);
@@ -43,30 +40,33 @@ class Migration extends CActiveRecord {
     /**
      * @return string the associated database table name
      */
-    public function tableName() {
+    public function tableName()
+    {
         return '{{migration}}';
     }
 
     /**
      * @return array validation rules for model attributes.
      */
-    public function rules() {
+    public function rules()
+    {
         // NOTE: you should only define rules for those attributes that
         // will receive user inputs.
         return array(
             array('version', 'required'),
-            array('apply_time', 'numerical', 'integerOnly' => true),
-            array('version', 'length', 'max' => 255),
+            array('apply_time', 'numerical', 'integerOnly'=>true),
+            array('version', 'length', 'max'=>255),
             // The following rule is used by search().
             // Please remove those attributes that should not be searched.
-            array('id, version, apply_time', 'safe', 'on' => 'search'),
+            array('id, version, apply_time', 'safe', 'on'=>'search'),
         );
     }
 
     /**
      * @return array relational rules.
      */
-    public function relations() {
+    public function relations()
+    {
         // NOTE: you may need to adjust the relation name and the related
         // class name for the relations automatically generated below.
         return array(
@@ -76,7 +76,8 @@ class Migration extends CActiveRecord {
     /**
      * @return array customized attribute labels (name=>label)
      */
-    public function attributeLabels() {
+    public function attributeLabels()
+    {
         return array(
             'id' => Yii::t('model', 'ID'),
             'version' => Yii::t('model', 'Version'),
@@ -88,20 +89,21 @@ class Migration extends CActiveRecord {
      * Retrieves a list of models based on the current search/filter conditions.
      * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
      */
-    public function search() {
+    public function search()
+    {
         // Warning: Please modify the following code to remove attributes that
         // should not be searched.
 
-        $criteria = new CDbCriteria;
+        $criteria=new CDbCriteria;
 
-        $criteria->compare('id', $this->id);
-        $criteria->compare('version', $this->version, true);
-        $criteria->compare('apply_time', $this->apply_time);
+        $criteria->compare('id',$this->id);
+        $criteria->compare('version',$this->version,true);
+        $criteria->compare('apply_time',$this->apply_time);
 
         return new CActiveDataProvider($this, array(
-            'criteria' => $criteria,
-            'pagination' => array(
-                'pageSize' => ConfigController::getConfig('pagination_page_size_default'),
+            'criteria'=>$criteria,
+            'pagination'=>array(
+                'pageSize'=> ConfigController::getConfig('pagination_page_size_default'),
             ),
         ));
     }
@@ -109,18 +111,26 @@ class Migration extends CActiveRecord {
     /**
      * Behaviors attached to Migration model. 
      */
-    public function behaviors() {
-        return array();
+    public function behaviors()
+    {
+         return array(
+            'datetimeI18NBehavior' => array('class' => 'ext.DateTimeI18NBehavior'),
+            'LoggableBehavior'=> 'application.modules.auditTrail.behaviors.LoggableBehavior',
+        );
     }
-
+    
     /**
      * Default scopes for Migration model. 
      */
-    public function defaultScope() {
-        return array();
-    }
+    public function defaultScope() 
+    {
+        return array(
 
-    protected function afterFind() {
+        );
+    }
+    
+    protected function afterFind()
+    {
         $this->status = self::UPDATED;
         return parent::afterFind();
     }
@@ -128,22 +138,23 @@ class Migration extends CActiveRecord {
     /**
      * Scopes for Migration model. 
      */
-    public function scopes() {
+    public function scopes()
+    {
         return array(
-            'reverse' => array(
-                'order' => 'id DESC',
+            'reverse'=>array(
+              'order'=>'id DESC',
             ),
-            'recently' => array(
-                'order' => 'id DESC',
-                'limit' => 10,
+            'recently'=>array(
+                'order'=>'id DESC',
+                'limit'=>10,
             ),
-            'last' => array(
-                'order' => 'id DESC',
-                'limit' => 1,
+            'last'=>array(
+                'order'=>'id DESC',
+                'limit'=>1,
             ),
         );
     }
-
+    
     /**
      * creates table for holding provider bindings	
      */
@@ -152,13 +163,15 @@ class Migration extends CActiveRecord {
         $sql = strtr($sql, array('{{migration}}' => Yii::app()->db->tablePrefix . 'migration'));
         Yii::app()->db->createCommand($sql)->execute();
     }
-
+    
     /*
      * Set the datetime inclusion if is new register
      */
-
-    public function beforeValidate() {
-        return parent::beforeValidate();
+    public function beforeValidate()
+    {
+        if($this->isNewRecord){
+            $this->datetime_inclusion = date(ConfigController::getConfig('date_format_php') . " H:i:s");
+        }
+        return  parent::beforeValidate();
     }
-
 }
