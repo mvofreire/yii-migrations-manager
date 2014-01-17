@@ -3,7 +3,6 @@
 class DefaultController extends Controller
 {
     public $defaultAction = "admin";
-    
     const path = 'application.migrations';
     
     public function filters()
@@ -29,8 +28,13 @@ class DefaultController extends Controller
             else
             {
                 $nome = $_POST['Migrate']['name'];
+                $pathTemplate = Yii::getPathOfAlias(Yii::app()->getModule('migration')->template);
+                
+                $template = file_get_contents("$pathTemplate/template.tpl");
+                file_put_contents("$pathTemplate/template.php", $template);
                 $result = exec("php $application/yiic.php migrate create $nome --interactive=0");
-                Yii::app()->user->setFlash('alert-success', $result);
+                unlink("$pathTemplate/template.php");
+                Yii::app()->user->setFlash('success', $result);
             }
         }
         
