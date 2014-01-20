@@ -3,6 +3,7 @@
 class DefaultController extends Controller
 {
     public $defaultAction = "admin";
+    
     const path = 'application.migrations';
     
     public function filters()
@@ -86,7 +87,15 @@ class DefaultController extends Controller
         {
             $especific = $_POST['Up'][0]; 
             $application = Yii::getPathOfAlias('application');
+            
+            $pathTemplate = Yii::getPathOfAlias(Yii::app()->getModule('migration')->template);
+            $template = file_get_contents("$pathTemplate/template.tpl");
+            
+            file_put_contents("$pathTemplate/template.php", $template);
+            
             $result = exec("php $application/yiic.php migrate to $especific --interactive=0");
+             
+            unlink("$pathTemplate/template.php");
             
             Yii::app()->user->setFlash('alert-warning', Yii::t('app', $result));
         }

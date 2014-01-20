@@ -1,14 +1,3 @@
-<?php
-if($f = Yii::app()->user->getFlash('success'))
-{
-    echo $f;
-}
-
-if($f = Yii::app()->user->getFlash('error'))
-{
-    echo $f;
-}
-?>
 <h1>
     <?php echo Yii::t('app', 'Create Migration'); ?>
 </h1>

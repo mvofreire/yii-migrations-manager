@@ -26,7 +26,7 @@ class Migration extends CActiveRecord
      */
     public static function model($className=__CLASS__)
     {
-        if(Yii::app()->db->schema->getTable('{{migration}}'))
+        if(Yii::app()->db->schema->getTable(self::getTableName()))
             $model = parent::model($className);
         else
         {
@@ -42,7 +42,17 @@ class Migration extends CActiveRecord
      */
     public function tableName()
     {
-        return '{{migration}}';
+        return self::getTableName();
+    }
+    
+    private static function getTableName()
+    {
+        if(Yii::app()->db->tablePrefix == '')
+            $name = "migration";
+        else
+            $name = "{{migration}}";
+        
+        return $name;
     }
 
     /**
@@ -106,6 +116,17 @@ class Migration extends CActiveRecord
                 'pageSize'=> ConfigController::getConfig('pagination_page_size_default'),
             ),
         ));
+    }
+
+    /**
+     * Behaviors attached to Migration model. 
+     */
+    public function behaviors()
+    {
+         return array(
+            'datetimeI18NBehavior' => array('class' => 'ext.DateTimeI18NBehavior'),
+            'LoggableBehavior'=> 'application.modules.auditTrail.behaviors.LoggableBehavior',
+        );
     }
     
     /**

@@ -5,7 +5,7 @@ class MigrationModule extends CWebModule
     public $viewIndex = 'index';
     public $viewAdmin = 'admin';
     public $viewCreate = 'create';
-    public $template = 'application.modules.migration.data.template.template';
+    public $template = 'application.modules.migration.data.template';
     
     public function init()
     {
