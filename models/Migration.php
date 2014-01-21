@@ -119,17 +119,6 @@ class Migration extends CActiveRecord
     }
 
     /**
-     * Behaviors attached to Migration model. 
-     */
-    public function behaviors()
-    {
-         return array(
-            'datetimeI18NBehavior' => array('class' => 'ext.DateTimeI18NBehavior'),
-            'LoggableBehavior'=> 'application.modules.auditTrail.behaviors.LoggableBehavior',
-        );
-    }
-    
-    /**
      * Default scopes for Migration model. 
      */
     public function defaultScope() 
