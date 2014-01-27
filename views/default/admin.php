@@ -8,6 +8,7 @@ echo CHtml::link('Create', array('create'));
 
 <h1><?php echo Yii::t('app', 'Avaiable'); ?></h1>
 <?php echo CHtml::beginForm($this->createUrl('default/up')); ?>
+<?php echo CHtml::submitButton('Up');?>
 <?php
 $this->widget('zii.widgets.grid.CGridView', array(
     'id' => 'migration-grid-avaiable',
@@ -52,6 +53,7 @@ $this->widget('zii.widgets.grid.CGridView', array(
 
 <h1><?php echo Yii::t('app', 'Updated'); ?></h1>
 <?php echo CHtml::beginForm($this->createUrl('default/down')); ?>
+<?php echo CHtml::submitButton('Down');?>
 <?php
 $this->widget('zii.widgets.grid.CGridView', array(
     'id' => 'migration-grid-updated',

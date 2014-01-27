@@ -3,7 +3,6 @@
 class DefaultController extends Controller
 {
     public $defaultAction = "admin";
-    
     const path = 'application.migrations';
     
     public function filters()
@@ -20,6 +19,7 @@ class DefaultController extends Controller
     
     public function actionCreate()
     {
+        $php = Yii::app()->getModule('migration')->phpPath;
         $application = Yii::getPathOfAlias('application');
         
         if(isset($_POST['Migrate']))
@@ -33,7 +33,7 @@ class DefaultController extends Controller
                 
                 $template = file_get_contents("$pathTemplate/template.tpl");
                 file_put_contents("$pathTemplate/template.php", $template);
-                $result = exec("php $application/yiic.php migrate create $nome --interactive=0");
+                $result = exec("$php $application/yiic.php migrate create $nome --interactive=0");
                 unlink("$pathTemplate/template.php");
                 Yii::app()->user->setFlash('success', $result);
             }
@@ -85,6 +85,8 @@ class DefaultController extends Controller
     {
         if(isset($_POST['Up'][0]))
         {
+            $php = Yii::app()->getModule('migration')->phpPath;
+            
             $especific = $_POST['Up'][0]; 
             $application = Yii::getPathOfAlias('application');
             
@@ -93,7 +95,7 @@ class DefaultController extends Controller
             
             file_put_contents("$pathTemplate/template.php", $template);
             
-            $result = exec("php $application/yiic.php migrate to $especific --interactive=0");
+            $result = exec("$php $application/yiic.php migrate to $especific --interactive=0");
              
             unlink("$pathTemplate/template.php");
             
@@ -111,9 +113,11 @@ class DefaultController extends Controller
     {
         if(isset($_POST['Down'][0]))
         {
+            $php = Yii::app()->getModule('migration')->phpPath;
+            
             $application = Yii::getPathOfAlias('application');
             $name = $_POST['Down'][0];
-            $result = exec("php $application/yiic.php migrate down $name --interactive=0");
+            $result = exec("$php $application/yiic.php migrate down $name --interactive=0");
             Yii::app()->user->setFlash('alert-warning', Yii::t('app', $result));
         }
         else
